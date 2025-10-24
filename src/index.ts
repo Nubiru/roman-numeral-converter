@@ -1,4 +1,7 @@
-// Placeholder file for TypeScript compilation during Phase 2 setup
-// This will be replaced with actual exports in Phase 3
+// Domain Layer Exports
+export { toRoman, toArabic } from './domain/converter';
+export { isValidRoman, isValidArabic, validateRange } from './domain/validation';
 
-export {};
+// Shared Exports
+export type { IConvertRequest, IConvertResponse, RomanNumeral, ArabicNumber } from './shared/types';
+export { ConversionError, ValidationError } from './shared/errors';
