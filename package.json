@@ -1,0 +1,33 @@
+{
+  "name": "roman-numeral-converter",
+  "version": "1.0.0",
+  "description": "api project with agent-context",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest tests/",
+    "test:unit": "jest tests/unit/",
+    "test:integration": "jest tests/integration/",
+    "usage": "node .cursor/scripts/usage_report.js",
+    "processes": "node .cursor/scripts/process_monitor.js",
+    "dashboard": "node .cursor/scripts/dashboard_launcher.js --html",
+    "build:agent-registry": "node .cursor/scripts/build-agent-registry.js"
+  },
+  "keywords": [
+    "api",
+    "ts",
+    "agent-context",
+    "ai-assisted"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "^9.0.1",
+    "ps-list": "^8.1.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
