@@ -1,7 +1,7 @@
 {
   "name": "roman-numeral-converter",
   "version": "1.0.0",
-  "description": "api project with agent-context",
+  "description": "api project that converts roman numerals to integers and vice versa",
   "main": "index.js",
   "scripts": {
     "test": "jest tests/",
@@ -18,7 +18,7 @@
     "agent-context",
     "ai-assisted"
   ],
-  "author": "",
+  "author": "Gabriel Osemberg",
   "license": "MIT",
   "dependencies": {
     "uuid": "^9.0.1",
