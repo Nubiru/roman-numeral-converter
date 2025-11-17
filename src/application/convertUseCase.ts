@@ -1,4 +1,4 @@
-import { toRoman, toArabic } from '@domain/converter';
+import { toArabic, toRoman } from '@domain/converter';
 import { ValidationError } from '@shared/errors';
 import type { IConvertRequest, IConvertResponse } from '@shared/types';
 
@@ -50,8 +50,8 @@ function detectDirection(input: string): 'toRoman' | 'toNumeric' {
 
 function convertToRoman(input: string): IConvertResponse {
   // Parse the number - if it's not parseable, it's not a valid number
-  const num = parseInt(input, 10);
-  if (isNaN(num) || num.toString() !== input) {
+  const num = Number.parseInt(input, 10);
+  if (Number.isNaN(num) || num.toString() !== input) {
     throw new ValidationError('Input must be a valid number for toRoman conversion');
   }
 

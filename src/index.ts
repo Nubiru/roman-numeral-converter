@@ -2,9 +2,8 @@
 export { convertUseCase } from './application/convertUseCase';
 
 // Domain Layer Exports
-export { toRoman, toArabic } from './domain/converter';
-export { isValidRoman, isValidArabic, validateRange } from './domain/validation';
-
-// Shared Exports
-export type { IConvertRequest, IConvertResponse, RomanNumeral, ArabicNumber } from './shared/types';
+export { toArabic, toRoman } from './domain/converter';
+export { isValidArabic, isValidRoman, validateRange } from './domain/validation';
 export { ConversionError, ValidationError } from './shared/errors';
+// Shared Exports
+export type { ArabicNumber, IConvertRequest, IConvertResponse, RomanNumeral } from './shared/types';

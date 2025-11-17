@@ -1,6 +1,6 @@
 import { ConversionError } from '@shared/errors';
+import type { ArabicNumber, RomanNumeral } from '@shared/types';
 import { isValidRoman, validateRange } from './validation';
-import type { RomanNumeral, ArabicNumber } from '@shared/types';
 
 const ROMAN_MAP: [number, string][] = [
   [1000, 'M'],

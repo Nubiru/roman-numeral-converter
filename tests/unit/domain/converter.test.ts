@@ -1,4 +1,4 @@
-import { toRoman, toArabic } from '@domain/converter';
+import { toArabic, toRoman } from '@domain/converter';
 import { ConversionError } from '@shared/errors';
 
 describe('Domain: Converter', () => {

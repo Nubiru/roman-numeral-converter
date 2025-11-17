@@ -11,8 +11,8 @@ export function isValidRoman(input: string): boolean {
 
 export function isValidArabic(input: string): boolean {
   if (!input || typeof input !== 'string') return false;
-  const num = parseInt(input, 10);
-  return !isNaN(num) && num.toString() === input && num >= MIN_VALUE && num <= MAX_VALUE;
+  const num = Number.parseInt(input, 10);
+  return !Number.isNaN(num) && num.toString() === input && num >= MIN_VALUE && num <= MAX_VALUE;
 }
 
 export function validateRange(num: number): void {

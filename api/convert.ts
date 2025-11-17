@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { convertUseCase } from '../src/application/convertUseCase';
 import { ConvertRequestSchema } from '../src/infrastructure/schemas/convertSchema';
-import { ValidationError, ConversionError } from '../src/shared/errors';
+import { ConversionError, ValidationError } from '../src/shared/errors';
 
 export default async function handler(
   req: VercelRequest,

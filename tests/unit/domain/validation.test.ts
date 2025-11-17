@@ -1,4 +1,4 @@
-import { isValidRoman, isValidArabic, validateRange } from '@domain/validation';
+import { isValidArabic, isValidRoman, validateRange } from '@domain/validation';
 import { ValidationError } from '@shared/errors';
 
 describe('Domain: Validation', () => {
