@@ -17,6 +17,6 @@ export function isValidArabic(input: string): boolean {
 
 export function validateRange(num: number): void {
   if (num < MIN_VALUE || num > MAX_VALUE) {
-    throw new ValidationError(`Number must be between ${MIN_VALUE} and ${MAX_VALUE}`);
+    throw new ValidationError(`El número debe estar entre ${MIN_VALUE} y ${MAX_VALUE}`);
   }
 }

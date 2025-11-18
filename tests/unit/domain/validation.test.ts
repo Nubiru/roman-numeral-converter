@@ -86,7 +86,7 @@ describe('Domain: Validation', () => {
         [10000, 'muy grande'],
       ])('debe lanzar ValidationError para %i (%s)', (input) => {
         expect(() => validateRange(input)).toThrow(ValidationError);
-        expect(() => validateRange(input)).toThrow(/between 1 and 3999/);
+        expect(() => validateRange(input)).toThrow(/entre 1 y 3999/);
       });
     });
   });

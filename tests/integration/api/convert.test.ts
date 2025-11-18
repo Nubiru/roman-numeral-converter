@@ -30,37 +30,67 @@ describe('API: POST /api/convert', () => {
     });
   });
 
-  describe('Casos de error - Validación', () => {
+  describe('Casos de error - Validación (422) - RFC 7807', () => {
     it.each([
-      ['ABC123', 'neither a valid number nor', 'entrada inválida'],
-      ['IIII', 'Invalid Roman numeral', 'romano inválido'],
-      ['-5', 'neither a valid number nor', 'negativo (no numérico)'],
-    ])('debe retornar 400 para %s: "%s"', async (value, expectedErrorSubstring) => {
+      [
+        'ABC123',
+        '/problems/validation-error',
+        'Error de Validación',
+        'no es ni un número válido ni un numeral romano',
+      ],
+      ['IIII', '/problems/invalid-numeral', 'Numeral Romano Inválido', 'Numeral romano inválido'],
+      [
+        '-5',
+        '/problems/validation-error',
+        'Error de Validación',
+        'no es ni un número válido ni un numeral romano',
+      ],
+    ])('debe retornar 422 RFC 7807 para %s', async (value, expectedType, expectedTitle, expectedDetailSubstring) => {
       const request = createRequest({ value });
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(400);
-      expect(data.error).toContain(expectedErrorSubstring);
+      // Verificar status HTTP
+      expect(response.status).toBe(422);
+
+      // Verificar Content-Type RFC 7807
+      expect(response.headers.get('Content-Type')).toBe('application/problem+json');
+
+      // Verificar estructura RFC 7807
+      expect(data.type).toBe(expectedType);
+      expect(data.title).toBe(expectedTitle);
+      expect(data.status).toBe(422);
+      expect(data.detail).toContain(expectedDetailSubstring);
+      expect(data.instance).toBe('/api/convert');
     });
   });
 
-  describe('Casos de error - Rango', () => {
+  describe('Casos de error - Rango (422) - RFC 7807', () => {
     it.each([
-      ['0', 'between 1 and 3999', 'cero'],
-      ['4000', 'between 1 and 3999', 'mayor a 3999'],
-      ['10000', 'between 1 and 3999', 'muy grande'],
-    ])('debe retornar 400 para número %s', async (value, expectedErrorSubstring) => {
+      ['0', 'cero'],
+      ['4000', 'mayor a 3999'],
+      ['10000', 'muy grande'],
+    ])('debe retornar 422 RFC 7807 para número %s (%s)', async (value, _descripcion) => {
       const request = createRequest({ value });
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(400);
-      expect(data.error).toContain(expectedErrorSubstring);
+      // Verificar status HTTP
+      expect(response.status).toBe(422);
+
+      // Verificar Content-Type RFC 7807
+      expect(response.headers.get('Content-Type')).toBe('application/problem+json');
+
+      // Verificar estructura RFC 7807
+      expect(data.type).toBe('/problems/range-error');
+      expect(data.title).toBe('Valor Fuera de Rango');
+      expect(data.status).toBe(422);
+      expect(data.detail).toContain('entre 1 y 3999');
+      expect(data.instance).toBe('/api/convert');
     });
   });
 
-  describe('Casos de error - Tipos inválidos', () => {
+  describe('Casos de error - Solicitud Malformada (400) - RFC 7807', () => {
     it.each([
       [{}, 'value faltante'],
       [{ value: 123 }, 'tipo número'],
@@ -68,11 +98,23 @@ describe('API: POST /api/convert', () => {
       [{ value: undefined }, 'undefined'],
       [{ value: ['array'] }, 'array'],
       [{ value: { nested: 'object' } }, 'objeto anidado'],
-    ])('debe retornar 400 para tipo inválido: %s', async (body, _descripcion) => {
+    ])('debe retornar 400 RFC 7807 para tipo inválido: %s (%s)', async (body, _descripcion) => {
       const request = createRequest(body);
       const response = await POST(request);
+      const data = await response.json();
 
+      // Verificar status HTTP
       expect(response.status).toBe(400);
+
+      // Verificar Content-Type RFC 7807
+      expect(response.headers.get('Content-Type')).toBe('application/problem+json');
+
+      // Verificar estructura RFC 7807
+      expect(data.type).toBe('/problems/malformed-request');
+      expect(data.title).toBe('Solicitud Malformada');
+      expect(data.status).toBe(400);
+      expect(data.detail).toBeDefined();
+      expect(data.instance).toBe('/api/convert');
     });
   });
 });

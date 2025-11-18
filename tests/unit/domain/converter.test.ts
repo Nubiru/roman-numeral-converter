@@ -51,7 +51,7 @@ describe('Domain: Converter', () => {
         [-100, 'muy negativo'],
       ])('debe lanzar ConversionError para %i (%s)', (input) => {
         expect(() => toRoman(input)).toThrow(ConversionError);
-        expect(() => toRoman(input)).toThrow(/between 1 and 3999/);
+        expect(() => toRoman(input)).toThrow(/entre 1 y 3999/);
       });
     });
   });

@@ -32,7 +32,7 @@ export function toRoman(num: ArabicNumber): RomanNumeral {
   try {
     validateRange(num);
   } catch (error) {
-    throw new ConversionError(`Cannot convert ${num}: ${(error as Error).message}`);
+    throw new ConversionError(`No se puede convertir ${num}: ${(error as Error).message}`, 'range');
   }
 
   let result = '';
@@ -50,7 +50,7 @@ export function toRoman(num: ArabicNumber): RomanNumeral {
 
 export function toArabic(roman: RomanNumeral): ArabicNumber {
   if (!isValidRoman(roman)) {
-    throw new ConversionError(`Invalid Roman numeral: ${roman}`);
+    throw new ConversionError(`Numeral romano inválido: ${roman}`);
   }
 
   let result = 0;

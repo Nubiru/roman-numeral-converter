@@ -1,10 +1,15 @@
 import { convertUseCase } from '@application/convertUseCase';
+import {
+  createMalformedRequestResponse,
+  withErrorHandler,
+} from '@infrastructure/http/errorHandler';
 import { ConvertRequestSchema } from '@infrastructure/schemas/convertSchema';
-import { ConversionError, ValidationError } from '@shared/errors';
 import { type NextRequest, NextResponse } from 'next/server';
 
+const INSTANCE = '/api/convert';
+
 export async function POST(request: NextRequest) {
-  try {
+  return withErrorHandler(async () => {
     // Parse request body
     const body = await request.json();
 
@@ -12,13 +17,8 @@ export async function POST(request: NextRequest) {
     const parseResult = ConvertRequestSchema.safeParse(body);
 
     if (!parseResult.success) {
-      return NextResponse.json(
-        {
-          error: 'Invalid request',
-          details: parseResult.error.issues,
-        },
-        { status: 400 }
-      );
+      const detail = parseResult.error.issues.map((i) => i.message).join('; ');
+      return createMalformedRequestResponse(detail, INSTANCE);
     }
 
     // Transform DTO to use case format
@@ -37,34 +37,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      return NextResponse.json(
-        {
-          error: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    if (error instanceof ConversionError) {
-      return NextResponse.json(
-        {
-          error: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Unexpected errors
-    console.error('Unexpected error:', error);
-    return NextResponse.json(
-      {
-        error: 'Error interno del servidor',
-      },
-      { status: 500 }
-    );
-  }
+  }, INSTANCE);
 }
 
 // Handle OPTIONS for CORS
