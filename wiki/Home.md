@@ -1,6 +1,7 @@
 # Convertidor de Números Romanos
 
-**API en Producción**: [https://roman-numeral-converter-seven.vercel.app](https://roman-numeral-converter-seven.vercel.app)
+**Vercel**: [https://roman-numeral-converter-seven.vercel.app](https://roman-numeral-converter-seven.vercel.app)
+**Netlify**: [https://roman-numeral-converter.netlify.app](https://roman-numeral-converter.netlify.app) *(próximamente)*
 **Repositorio**: [GitHub](https://github.com/Nubiru/roman-numeral-converter)
 
 ---
@@ -62,10 +63,11 @@ curl -X POST https://roman-numeral-converter-seven.vercel.app/api/convert \
 
 ## Documentación
 
-- **[Referencia de API](API-Reference)** - Endpoints, formatos de petición/respuesta
-- **[Arquitectura](Architecture)** - Diseño del sistema y capas DDD
+- **[API](API)** - Endpoints, formatos de petición/respuesta
+- **[Arquitectura](Arquitectura)** - Diseño del sistema y capas DDD
+- **[Estructura](Estructura)** - Árbol de directorios y convenciones
 - **[RFC 7807](RFC-7807)** - Estándar Problem Details para errores
-- **[Estrategia de Testing](Testing-Strategy)** - Enfoque TDD y cobertura
+- **[Testing](Testing)** - Enfoque TDD y cobertura
 
 ---
 
@@ -98,7 +100,7 @@ curl -X POST https://roman-numeral-converter-seven.vercel.app/api/convert \
 
 ## Estado
 
-![Build Status](https://github.com/Nubiru/roman-numeral-converter/workflows/CI/badge.svg)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)
 ![Deployment](https://img.shields.io/badge/deployment-active-success)
 
