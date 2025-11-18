@@ -3,50 +3,91 @@ import { ValidationError } from '@shared/errors';
 
 describe('Domain: Validation', () => {
   describe('isValidRoman', () => {
-    it('should return true for valid Roman numerals', () => {
-      expect(isValidRoman('I')).toBe(true);
-      expect(isValidRoman('IV')).toBe(true);
-      expect(isValidRoman('MCMXCIV')).toBe(true);
+    describe('casos válidos', () => {
+      it.each([
+        ['I', 'uno'],
+        ['IV', 'cuatro (sustractivo)'],
+        ['MCMXCIV', 'año 1994'],
+        ['MMMCMXCIX', 'máximo 3999'],
+        ['LVIII', 'cincuenta y ocho'],
+        ['XXX', 'treinta'],
+        ['CCC', 'trescientos'],
+        ['MMM', 'tres mil'],
+      ])('debe retornar true para %s (%s)', (input) => {
+        expect(isValidRoman(input)).toBe(true);
+      });
     });
 
-    it('should return false for invalid Roman numerals', () => {
-      expect(isValidRoman('IIII')).toBe(false);
-      expect(isValidRoman('VV')).toBe(false);
-      expect(isValidRoman('ABC')).toBe(false);
-      expect(isValidRoman('')).toBe(false);
-    });
-
-    it('should return false for lowercase', () => {
-      expect(isValidRoman('iv')).toBe(false);
+    describe('casos inválidos', () => {
+      it.each([
+        ['IIII', 'cuatro I consecutivos'],
+        ['VV', 'dos V'],
+        ['ABC', 'caracteres inválidos'],
+        ['', 'cadena vacía'],
+        ['iv', 'minúsculas'],
+        ['MMMM', 'cuatro M'],
+        ['LL', 'dos L'],
+        ['DD', 'dos D'],
+        ['XXXX', 'cuatro X'],
+        ['CCCC', 'cuatro C'],
+      ])('debe retornar false para %s (%s)', (input) => {
+        expect(isValidRoman(input)).toBe(false);
+      });
     });
   });
 
   describe('isValidArabic', () => {
-    it('should return true for valid Arabic strings', () => {
-      expect(isValidArabic('1')).toBe(true);
-      expect(isValidArabic('42')).toBe(true);
-      expect(isValidArabic('3999')).toBe(true);
+    describe('casos válidos', () => {
+      it.each([
+        ['1', 'mínimo'],
+        ['42', 'número común'],
+        ['3999', 'máximo'],
+        ['100', 'centena'],
+        ['2024', 'año actual'],
+      ])('debe retornar true para %s (%s)', (input) => {
+        expect(isValidArabic(input)).toBe(true);
+      });
     });
 
-    it('should return false for invalid Arabic strings', () => {
-      expect(isValidArabic('abc')).toBe(false);
-      expect(isValidArabic('1.5')).toBe(false);
-      expect(isValidArabic('-1')).toBe(false);
-      expect(isValidArabic('')).toBe(false);
+    describe('casos inválidos', () => {
+      it.each([
+        ['abc', 'letras'],
+        ['1.5', 'decimal'],
+        ['-1', 'negativo con signo'],
+        ['', 'vacío'],
+        ['1 2', 'con espacios'],
+        ['12abc', 'mixto'],
+        ['0x10', 'hexadecimal'],
+      ])('debe retornar false para %s (%s)', (input) => {
+        expect(isValidArabic(input)).toBe(false);
+      });
     });
   });
 
   describe('validateRange', () => {
-    it('should not throw for valid range (1-3999)', () => {
-      expect(() => validateRange(1)).not.toThrow();
-      expect(() => validateRange(3999)).not.toThrow();
-      expect(() => validateRange(1994)).not.toThrow();
+    describe('rango válido (1-3999)', () => {
+      it.each([
+        [1, 'mínimo'],
+        [3999, 'máximo'],
+        [1994, 'año'],
+        [100, 'centena'],
+        [2000, 'milenio'],
+      ])('no debe lanzar error para %i (%s)', (input) => {
+        expect(() => validateRange(input)).not.toThrow();
+      });
     });
 
-    it('should throw ValidationError for out of range', () => {
-      expect(() => validateRange(0)).toThrow(ValidationError);
-      expect(() => validateRange(4000)).toThrow(ValidationError);
-      expect(() => validateRange(-5)).toThrow(ValidationError);
+    describe('fuera de rango', () => {
+      it.each([
+        [0, 'cero'],
+        [4000, 'mayor a máximo'],
+        [-5, 'negativo pequeño'],
+        [-1000, 'negativo grande'],
+        [10000, 'muy grande'],
+      ])('debe lanzar ValidationError para %i (%s)', (input) => {
+        expect(() => validateRange(input)).toThrow(ValidationError);
+        expect(() => validateRange(input)).toThrow(/between 1 and 3999/);
+      });
     });
   });
 });

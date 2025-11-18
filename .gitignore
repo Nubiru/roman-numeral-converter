@@ -3,12 +3,19 @@ node_modules/
 package-lock.json
 dist/
 
+# Next.js
+.next/
+out/
+next-env.d.ts
+
 # not part of the project
 .claude/
 .cursor/
 .context/
 .human/
 .snapshots/
+nul
+docs/
 
 # Logs
 *.log

@@ -3,81 +3,111 @@ import { ConversionError } from '@shared/errors';
 
 describe('Domain: Converter', () => {
   describe('toRoman', () => {
-    it('should convert basic numerals', () => {
-      expect(toRoman(1)).toBe('I');
-      expect(toRoman(5)).toBe('V');
-      expect(toRoman(10)).toBe('X');
-      expect(toRoman(50)).toBe('L');
-      expect(toRoman(100)).toBe('C');
-      expect(toRoman(500)).toBe('D');
-      expect(toRoman(1000)).toBe('M');
+    describe('conversiones básicas', () => {
+      it.each([
+        [1, 'I'],
+        [5, 'V'],
+        [10, 'X'],
+        [50, 'L'],
+        [100, 'C'],
+        [500, 'D'],
+        [1000, 'M'],
+      ])('debe convertir %i → %s', (input, expected) => {
+        expect(toRoman(input)).toBe(expected);
+      });
     });
 
-    it('should convert numbers with subtractive notation', () => {
-      expect(toRoman(4)).toBe('IV');
-      expect(toRoman(9)).toBe('IX');
-      expect(toRoman(40)).toBe('XL');
-      expect(toRoman(90)).toBe('XC');
-      expect(toRoman(400)).toBe('CD');
-      expect(toRoman(900)).toBe('CM');
+    describe('notación sustractiva', () => {
+      it.each([
+        [4, 'IV'],
+        [9, 'IX'],
+        [40, 'XL'],
+        [90, 'XC'],
+        [400, 'CD'],
+        [900, 'CM'],
+      ])('debe convertir %i → %s', (input, expected) => {
+        expect(toRoman(input)).toBe(expected);
+      });
     });
 
-    it('should convert complex numbers', () => {
-      expect(toRoman(1994)).toBe('MCMXCIV');
-      expect(toRoman(3999)).toBe('MMMCMXCIX');
-      expect(toRoman(58)).toBe('LVIII');
-      expect(toRoman(1984)).toBe('MCMLXXXIV');
+    describe('números complejos', () => {
+      it.each([
+        [1994, 'MCMXCIV'],
+        [3999, 'MMMCMXCIX'],
+        [58, 'LVIII'],
+        [1984, 'MCMLXXXIV'],
+        [2024, 'MMXXIV'],
+        [1776, 'MDCCLXXVI'],
+      ])('debe convertir %i → %s', (input, expected) => {
+        expect(toRoman(input)).toBe(expected);
+      });
     });
 
-    it('should handle edge cases', () => {
-      expect(toRoman(1)).toBe('I');
-      expect(toRoman(3999)).toBe('MMMCMXCIX');
-    });
-
-    it('should throw for out of range', () => {
-      expect(() => toRoman(0)).toThrow(ConversionError);
-      expect(() => toRoman(4000)).toThrow(ConversionError);
-      expect(() => toRoman(-1)).toThrow(ConversionError);
+    describe('errores fuera de rango', () => {
+      it.each([
+        [0, 'cero'],
+        [4000, 'mayor a 3999'],
+        [-1, 'negativo'],
+        [-100, 'muy negativo'],
+      ])('debe lanzar ConversionError para %i (%s)', (input) => {
+        expect(() => toRoman(input)).toThrow(ConversionError);
+        expect(() => toRoman(input)).toThrow(/between 1 and 3999/);
+      });
     });
   });
 
   describe('toArabic', () => {
-    it('should convert basic Roman numerals', () => {
-      expect(toArabic('I')).toBe(1);
-      expect(toArabic('V')).toBe(5);
-      expect(toArabic('X')).toBe(10);
-      expect(toArabic('L')).toBe(50);
-      expect(toArabic('C')).toBe(100);
-      expect(toArabic('D')).toBe(500);
-      expect(toArabic('M')).toBe(1000);
+    describe('conversiones básicas', () => {
+      it.each([
+        ['I', 1],
+        ['V', 5],
+        ['X', 10],
+        ['L', 50],
+        ['C', 100],
+        ['D', 500],
+        ['M', 1000],
+      ])('debe convertir %s → %i', (input, expected) => {
+        expect(toArabic(input)).toBe(expected);
+      });
     });
 
-    it('should convert Roman numerals with subtractive notation', () => {
-      expect(toArabic('IV')).toBe(4);
-      expect(toArabic('IX')).toBe(9);
-      expect(toArabic('XL')).toBe(40);
-      expect(toArabic('XC')).toBe(90);
-      expect(toArabic('CD')).toBe(400);
-      expect(toArabic('CM')).toBe(900);
+    describe('notación sustractiva', () => {
+      it.each([
+        ['IV', 4],
+        ['IX', 9],
+        ['XL', 40],
+        ['XC', 90],
+        ['CD', 400],
+        ['CM', 900],
+      ])('debe convertir %s → %i', (input, expected) => {
+        expect(toArabic(input)).toBe(expected);
+      });
     });
 
-    it('should convert complex Roman numerals', () => {
-      expect(toArabic('MCMXCIV')).toBe(1994);
-      expect(toArabic('MMMCMXCIX')).toBe(3999);
-      expect(toArabic('LVIII')).toBe(58);
-      expect(toArabic('MCMLXXXIV')).toBe(1984);
+    describe('números complejos', () => {
+      it.each([
+        ['MCMXCIV', 1994],
+        ['MMMCMXCIX', 3999],
+        ['LVIII', 58],
+        ['MCMLXXXIV', 1984],
+        ['MMXXIV', 2024],
+        ['MDCCLXXVI', 1776],
+      ])('debe convertir %s → %i', (input, expected) => {
+        expect(toArabic(input)).toBe(expected);
+      });
     });
 
-    it('should handle edge cases', () => {
-      expect(toArabic('I')).toBe(1);
-      expect(toArabic('MMMCMXCIX')).toBe(3999);
-    });
-
-    it('should throw for invalid Roman numerals', () => {
-      expect(() => toArabic('IIII')).toThrow(ConversionError);
-      expect(() => toArabic('VV')).toThrow(ConversionError);
-      expect(() => toArabic('ABC')).toThrow(ConversionError);
-      expect(() => toArabic('')).toThrow(ConversionError);
+    describe('errores por romano inválido', () => {
+      it.each([
+        ['IIII', 'repetición inválida de I'],
+        ['VV', 'repetición inválida de V'],
+        ['ABC', 'caracteres inválidos'],
+        ['', 'cadena vacía'],
+        ['MMMM', 'más de tres M'],
+        ['LL', 'repetición inválida de L'],
+      ])('debe lanzar ConversionError para %s (%s)', (input) => {
+        expect(() => toArabic(input)).toThrow(ConversionError);
+      });
     });
   });
 });

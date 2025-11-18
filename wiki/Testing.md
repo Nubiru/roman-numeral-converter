@@ -66,17 +66,17 @@ tests/
 
 ```typescript
 describe('toRoman', () => {
-  it('should convert basic numerals', () => {
+  test('should convert basic numerals', () => {
     expect(toRoman(1)).toBe('I');
     expect(toRoman(5)).toBe('V');
   });
 
-  it('should handle subtractive notation', () => {
+  test('should handle subtractive notation', () => {
     expect(toRoman(4)).toBe('IV');
     expect(toRoman(9)).toBe('IX');
   });
 
-  it('should throw for out of range', () => {
+  test('should throw for out of range', () => {
     expect(() => toRoman(0)).toThrow(ConversionError);
   });
 });
@@ -92,7 +92,7 @@ describe('toRoman', () => {
 
 ```typescript
 describe('POST /api/convert', () => {
-  it('should convert numeric to Roman', async () => {
+  test('should convert numeric to Roman', async () => {
     const response = await request(handler)
       .post('/api/convert')
       .send({ input: '42' });

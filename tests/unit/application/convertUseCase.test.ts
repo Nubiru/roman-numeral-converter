@@ -2,76 +2,83 @@ import { convertUseCase } from '@application/convertUseCase';
 import { ConversionError, ValidationError } from '@shared/errors';
 
 describe('Application: ConvertUseCase', () => {
-  describe('Auto-detection', () => {
-    it('should auto-detect numeric input and convert to Roman', () => {
-      const result = convertUseCase({ input: '42', direction: 'auto' });
-      expect(result.input).toBe('42');
-      expect(result.output).toBe('XLII');
+  describe('Auto-detección', () => {
+    it.each([
+      ['42', 'XLII', 'toRoman', 'numérico a romano'],
+      ['XLII', '42', 'toNumeric', 'romano a numérico'],
+      ['1', 'I', 'toRoman', 'valor mínimo numérico'],
+      ['I', '1', 'toNumeric', 'valor mínimo romano'],
+      ['3999', 'MMMCMXCIX', 'toRoman', 'valor máximo numérico'],
+      ['MMMCMXCIX', '3999', 'toNumeric', 'valor máximo romano'],
+      ['1994', 'MCMXCIV', 'toRoman', 'año complejo'],
+    ])('debe auto-detectar %s → %s (%s)', (input, expectedOutput, expectedDirection) => {
+      const result = convertUseCase({ input, direction: 'auto' });
+      expect(result.input).toBe(input);
+      expect(result.output).toBe(expectedOutput);
+      expect(result.direction).toBe(expectedDirection);
+    });
+  });
+
+  describe('Dirección explícita toRoman', () => {
+    it.each([
+      ['1', 'I'],
+      ['42', 'XLII'],
+      ['1994', 'MCMXCIV'],
+      ['3999', 'MMMCMXCIX'],
+    ])('debe convertir %s a romano %s', (input, expectedOutput) => {
+      const result = convertUseCase({ input, direction: 'toRoman' });
+      expect(result.output).toBe(expectedOutput);
       expect(result.direction).toBe('toRoman');
     });
 
-    it('should auto-detect Roman input and convert to numeric', () => {
-      const result = convertUseCase({ input: 'XLII', direction: 'auto' });
-      expect(result.input).toBe('XLII');
-      expect(result.output).toBe('42');
-      expect(result.direction).toBe('toNumeric');
+    it.each([
+      ['IV', 'entrada romana'],
+      ['ABC', 'entrada inválida'],
+    ])('debe lanzar ValidationError para %s', (input) => {
+      expect(() => convertUseCase({ input, direction: 'toRoman' })).toThrow(ValidationError);
     });
   });
 
-  describe('Explicit toRoman direction', () => {
-    it('should convert numeric to Roman', () => {
-      const result = convertUseCase({ input: '1994', direction: 'toRoman' });
-      expect(result.input).toBe('1994');
-      expect(result.output).toBe('MCMXCIV');
-      expect(result.direction).toBe('toRoman');
-    });
-
-    it('should throw if input is not numeric', () => {
-      expect(() => convertUseCase({ input: 'IV', direction: 'toRoman' })).toThrow(ValidationError);
-    });
-  });
-
-  describe('Explicit toNumeric direction', () => {
-    it('should convert Roman to numeric', () => {
-      const result = convertUseCase({ input: 'MCMXCIV', direction: 'toNumeric' });
-      expect(result.input).toBe('MCMXCIV');
-      expect(result.output).toBe('1994');
+  describe('Dirección explícita toNumeric', () => {
+    it.each([
+      ['I', '1'],
+      ['XLII', '42'],
+      ['MCMXCIV', '1994'],
+      ['MMMCMXCIX', '3999'],
+    ])('debe convertir %s a numérico %s', (input, expectedOutput) => {
+      const result = convertUseCase({ input, direction: 'toNumeric' });
+      expect(result.output).toBe(expectedOutput);
       expect(result.direction).toBe('toNumeric');
     });
 
-    it('should throw if input is not Roman', () => {
-      expect(() => convertUseCase({ input: '42', direction: 'toNumeric' })).toThrow(
-        ValidationError
-      );
+    it.each([
+      ['42', 'entrada numérica'],
+      ['123', 'entrada numérica'],
+    ])('debe lanzar ValidationError para %s', (input) => {
+      expect(() => convertUseCase({ input, direction: 'toNumeric' })).toThrow(ValidationError);
     });
   });
 
-  describe('Edge cases', () => {
-    it('should handle minimum value (1/I)', () => {
-      expect(convertUseCase({ input: '1', direction: 'auto' }).output).toBe('I');
-      expect(convertUseCase({ input: 'I', direction: 'auto' }).output).toBe('1');
+  describe('Casos de error', () => {
+    it.each([
+      ['0', ConversionError, 'fuera de rango (cero)'],
+      ['4000', ConversionError, 'fuera de rango (mayor)'],
+      ['10000', ConversionError, 'fuera de rango (muy grande)'],
+      ['IIII', ConversionError, 'romano inválido'],
+      ['VV', ConversionError, 'romano inválido (repetición)'],
+    ])('debe lanzar %s para %s', (input, errorType) => {
+      expect(() => convertUseCase({ input, direction: 'auto' })).toThrow(errorType);
     });
 
-    it('should handle maximum value (3999/MMMCMXCIX)', () => {
-      expect(convertUseCase({ input: '3999', direction: 'auto' }).output).toBe('MMMCMXCIX');
-      expect(convertUseCase({ input: 'MMMCMXCIX', direction: 'auto' }).output).toBe('3999');
-    });
-
-    it('should throw for out of range numeric', () => {
-      expect(() => convertUseCase({ input: '0', direction: 'auto' })).toThrow(ConversionError);
-      expect(() => convertUseCase({ input: '4000', direction: 'auto' })).toThrow(ConversionError);
-    });
-
-    it('should throw for invalid Roman', () => {
-      expect(() => convertUseCase({ input: 'IIII', direction: 'auto' })).toThrow(ConversionError);
-    });
-
-    it('should throw for empty input', () => {
-      expect(() => convertUseCase({ input: '', direction: 'auto' })).toThrow(ValidationError);
-    });
-
-    it('should throw for ambiguous input (mixed)', () => {
-      expect(() => convertUseCase({ input: '12X', direction: 'auto' })).toThrow(ValidationError);
+    it.each([
+      ['', 'entrada vacía'],
+      ['   ', 'solo espacios'],
+      ['12X', 'entrada ambigua'],
+      ['ABC', 'caracteres inválidos'],
+      ['-1', 'negativo (no reconocido)'],
+      ['-100', 'negativo grande'],
+    ])('debe lanzar ValidationError para %s', (input) => {
+      expect(() => convertUseCase({ input, direction: 'auto' })).toThrow(ValidationError);
     });
   });
 });

@@ -1,0 +1,30 @@
+# Netlify specific files
+netlify.toml
+.netlify/
+
+# Test files
+tests/
+coverage/
+*.test.ts
+*.test.tsx
+jest.config.js
+jest.setup.ts
+
+# Documentation
+wiki/
+docs/
+*.md
+!README.md
+
+# Development files
+.context/
+.claude/
+.cursor/
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.log
+.DS_Store
