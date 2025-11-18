@@ -17,12 +17,14 @@ const moduleNameMapper = {
 const config = {
   collectCoverageFrom: [
     'src/**/*.ts',
+    'lib/**/*.ts',
     'components/**/*.tsx',
     'app/**/*.tsx',
     '!src/**/*.d.ts',
     '!src/**/index.ts',
     '!app/layout.tsx',
     '!app/globals.css',
+    '!lib/utils.ts', // Utility from shadcn
     '!components/ui/**/*.tsx', // Shadcn UI library components
   ],
   coverageThreshold: {
@@ -49,7 +51,7 @@ const config = {
       preset: 'ts-jest',
       testEnvironment: 'jest-environment-jsdom',
       roots: ['<rootDir>/tests'],
-      testMatch: ['<rootDir>/tests/components/**/*.test.tsx'],
+      testMatch: ['<rootDir>/tests/components/**/*.test.tsx', '<rootDir>/tests/lib/**/*.test.ts'],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
       moduleNameMapper,
       transform: {

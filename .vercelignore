@@ -1,30 +1,17 @@
-# Netlify specific files
+# Archivos específicos de Netlify
 netlify.toml
 .netlify/
 
-# Test files
+# Archivos de desarrollo
+.context/
+.claude/
+wiki/
+
+# Tests (no necesarios en producción)
 tests/
-coverage/
-*.test.ts
-*.test.tsx
 jest.config.js
 jest.setup.ts
 
-# Documentation
-wiki/
-docs/
+# Documentación de desarrollo
 *.md
 !README.md
-
-# Development files
-.context/
-.claude/
-.cursor/
-
-# IDE
-.vscode/
-.idea/
-
-# Misc
-*.log
-.DS_Store

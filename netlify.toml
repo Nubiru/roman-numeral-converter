@@ -1,6 +1,3 @@
-# Netlify Configuration for Roman Numeral Converter
-# Next.js deployment with App Router
-
 [build]
   command = "npm run build"
   publish = ".next"
@@ -8,11 +5,7 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Next.js plugin for Netlify
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-# Headers for CORS and security
+# Headers de seguridad para API
 [[headers]]
   for = "/api/*"
   [headers.values]
@@ -22,16 +15,10 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
 
+# Headers de seguridad generales
 [[headers]]
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
-
-# Redirects for SPA behavior
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  conditions = {Role = ["admin"]}

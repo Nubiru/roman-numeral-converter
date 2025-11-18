@@ -158,17 +158,40 @@ describe('ConverterForm', () => {
       });
     });
 
-    describe('Errores de API', () => {
+    describe('Errores de API - RFC 7807', () => {
       it.each([
-        ['4000', 'Número fuera de rango', 'fuera de rango'],
-        ['IIII', 'Número romano inválido', 'romano inválido'],
-        ['-5', 'Número fuera de rango', 'negativo'],
-        ['abc', 'Valor inválido', 'caracteres inválidos'],
-      ])('debe mostrar toast para %s: "%s" (%s)', async (input, errorMsg) => {
+        [
+          '4000',
+          '/problems/range-error',
+          'Valor Fuera de Rango',
+          'El número debe estar entre 1 y 3999',
+          'Valor fuera de rango',
+        ],
+        [
+          'IIII',
+          '/problems/invalid-numeral',
+          'Numeral Romano Inválido',
+          'Numeral romano inválido: IIII',
+          'Numeral romano inválido',
+        ],
+        [
+          'abc',
+          '/problems/validation-error',
+          'Error de Validación',
+          'La entrada no es ni un número válido ni un numeral romano válido',
+          'Entrada no reconocida',
+        ],
+      ])('debe mostrar toast educativo para %s', async (input, type, _title, detail, expectedToastTitle) => {
         mockFetch.mockResolvedValueOnce({
           ok: false,
-          status: 400,
-          json: async () => ({ error: errorMsg }),
+          status: 422,
+          json: async () => ({
+            type,
+            title: _title,
+            status: 422,
+            detail,
+            instance: '/api/convert',
+          }),
         });
 
         render(<ConverterForm />);
@@ -178,7 +201,37 @@ describe('ConverterForm', () => {
         await user.click(screen.getByRole('button', { name: /convertir/i }));
 
         await waitFor(() => {
-          expect(mockToast.error).toHaveBeenCalledWith(errorMsg);
+          expect(mockToast.error).toHaveBeenCalledWith(
+            expectedToastTitle,
+            expect.objectContaining({
+              description: expect.stringContaining(detail),
+              duration: 7000,
+            })
+          );
+        });
+      });
+
+      it('debe mostrar toast genérico para error no RFC 7807', async () => {
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          json: async () => ({ message: 'Internal error' }),
+        });
+
+        render(<ConverterForm />);
+        const user = userEvent.setup();
+
+        await user.type(screen.getByLabelText(/valor a convertir/i), '100');
+        await user.click(screen.getByRole('button', { name: /convertir/i }));
+
+        await waitFor(() => {
+          expect(mockToast.error).toHaveBeenCalledWith(
+            'Error en la conversión',
+            expect.objectContaining({
+              description: 'Ha ocurrido un error inesperado',
+              duration: 5000,
+            })
+          );
         });
       });
     });

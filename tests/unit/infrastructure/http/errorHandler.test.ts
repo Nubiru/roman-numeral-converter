@@ -20,51 +20,44 @@ describe('errorHandler', () => {
       expect(result).toBe(mockResponse);
     });
 
-    it('debe capturar ValidationError y retornar RFC 7807', async () => {
+    it.each([
+      [
+        'ValidationError',
+        new ValidationError('Entrada inválida'),
+        422,
+        '/problems/validation-error',
+        'Error de Validación',
+        'Entrada inválida',
+      ],
+      [
+        'ConversionError (invalid-numeral)',
+        new ConversionError('Numeral romano inválido: IIII'),
+        422,
+        '/problems/invalid-numeral',
+        'Numeral Romano Inválido',
+        'Numeral romano inválido: IIII',
+      ],
+      [
+        'ConversionError (range)',
+        new ConversionError('Número fuera de rango', 'range'),
+        422,
+        '/problems/range-error',
+        'Valor Fuera de Rango',
+        'Número fuera de rango',
+      ],
+    ])('debe capturar %s y retornar RFC 7807', async (_name, error, expectedStatus, expectedType, expectedTitle, expectedDetail) => {
       const handler = () => {
-        throw new ValidationError('Entrada inválida');
+        throw error;
       };
 
       const result = await withErrorHandler(handler, instance);
       const data = await result.json();
 
-      expect(result.status).toBe(422);
-      expect(data.type).toBe('/problems/validation-error');
-      expect(data.title).toBe('Error de Validación');
-      expect(data.status).toBe(422);
-      expect(data.detail).toBe('Entrada inválida');
-      expect(data.instance).toBe(instance);
-    });
-
-    it('debe capturar ConversionError (invalid-numeral) y retornar RFC 7807', async () => {
-      const handler = () => {
-        throw new ConversionError('Numeral romano inválido: IIII');
-      };
-
-      const result = await withErrorHandler(handler, instance);
-      const data = await result.json();
-
-      expect(result.status).toBe(422);
-      expect(data.type).toBe('/problems/invalid-numeral');
-      expect(data.title).toBe('Numeral Romano Inválido');
-      expect(data.status).toBe(422);
-      expect(data.detail).toBe('Numeral romano inválido: IIII');
-      expect(data.instance).toBe(instance);
-    });
-
-    it('debe capturar ConversionError (range) y retornar RFC 7807', async () => {
-      const handler = () => {
-        throw new ConversionError('Número fuera de rango', 'range');
-      };
-
-      const result = await withErrorHandler(handler, instance);
-      const data = await result.json();
-
-      expect(result.status).toBe(422);
-      expect(data.type).toBe('/problems/range-error');
-      expect(data.title).toBe('Valor Fuera de Rango');
-      expect(data.status).toBe(422);
-      expect(data.detail).toBe('Número fuera de rango');
+      expect(result.status).toBe(expectedStatus);
+      expect(data.type).toBe(expectedType);
+      expect(data.title).toBe(expectedTitle);
+      expect(data.status).toBe(expectedStatus);
+      expect(data.detail).toBe(expectedDetail);
       expect(data.instance).toBe(instance);
     });
 
@@ -87,7 +80,7 @@ describe('errorHandler', () => {
       consoleSpy.mockRestore();
     });
 
-    it('debe manejar handlers asíncronos', async () => {
+    it('debe manejar handlers asíncronos exitosos', async () => {
       const mockResponse = NextResponse.json({ async: true }, { status: 200 });
       const handler = async () => {
         await Promise.resolve();
@@ -114,18 +107,12 @@ describe('errorHandler', () => {
   });
 
   describe('transformErrorToResponse', () => {
-    it('debe transformar ValidationError correctamente', () => {
-      const error = new ValidationError('Test validation');
+    it.each([
+      ['ValidationError', new ValidationError('Test validation'), 422],
+      ['ConversionError', new ConversionError('Test conversion'), 422],
+    ])('debe transformar %s a status %i', (_name, error, expectedStatus) => {
       const result = transformErrorToResponse(error, instance);
-
-      expect(result.status).toBe(422);
-    });
-
-    it('debe transformar ConversionError correctamente', () => {
-      const error = new ConversionError('Test conversion');
-      const result = transformErrorToResponse(error, instance);
-
-      expect(result.status).toBe(422);
+      expect(result.status).toBe(expectedStatus);
     });
 
     it('debe transformar errores desconocidos a 500', () => {

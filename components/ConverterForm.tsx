@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { formatErrorForToast, isRFC7807Error } from '@/lib/error-messages';
 
 interface ConversionResult {
   result: string | number;
@@ -37,7 +38,20 @@ export function ConverterForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Error en la conversión');
+
+        if (isRFC7807Error(errorData)) {
+          const { title, description, educationalTip } = formatErrorForToast(errorData);
+
+          toast.error(title, {
+            description: `${description}\n\n${educationalTip}`,
+            duration: 7000,
+          });
+        } else {
+          toast.error('Error en la conversión', {
+            description: 'Ha ocurrido un error inesperado',
+            duration: 5000,
+          });
+        }
         return;
       }
 

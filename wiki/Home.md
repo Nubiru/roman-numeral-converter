@@ -1,19 +1,20 @@
-# API Convertidor de Números Romanos
+# Convertidor de Números Romanos
 
-**API en Vivo**: [https://roman-numeral-converter-seven.vercel.app/api/convert](https://roman-numeral-converter-seven.vercel.app/api/convert)
+**API en Producción**: [https://roman-numeral-converter-seven.vercel.app](https://roman-numeral-converter-seven.vercel.app)
 **Repositorio**: [GitHub](https://github.com/Nubiru/roman-numeral-converter)
 
 ---
 
-## Descripción General
+## Descripción
 
 API REST serverless para conversión bidireccional de números romanos (1-3999 ↔ I-MMMCMXCIX).
 
-Construida con **TypeScript**, **Vercel Serverless Functions** y **Domain-Driven Design** para demostrar:
-- ✅ Desarrollo Dirigido por Pruebas (TDD) con 90%+ de cobertura
-- ✅ Arquitectura DDD (Dominio, Aplicación, Infraestructura)
-- ✅ Pipeline CI/CD automatizado
-- ✅ Prácticas de despliegue profesionales
+Construido con **TypeScript**, **Next.js**, y **Domain-Driven Design** para demostrar:
+- Test-Driven Development (98%+ cobertura)
+- Arquitectura DDD (Dominio, Aplicación, Infraestructura)
+- Estándar RFC 7807 Problem Details para errores
+- Pipeline CI/CD automatizado
+- Despliegue en Vercel/Netlify
 
 ---
 
@@ -26,17 +27,26 @@ Construida con **TypeScript**, **Vercel Serverless Functions** y **Domain-Driven
 **Petición**:
 ```json
 {
-  "input": "42",
-  "direction": "auto"
+  "value": "42"
 }
 ```
 
-**Respuesta**:
+**Respuesta exitosa**:
 ```json
 {
-  "input": "42",
-  "output": "XLII",
-  "direction": "toRoman"
+  "result": "XLII",
+  "type": "toRoman"
+}
+```
+
+**Respuesta de error (RFC 7807)**:
+```json
+{
+  "type": "/problems/range-error",
+  "title": "Valor Fuera de Rango",
+  "status": 422,
+  "detail": "No se puede convertir 4000: El número debe estar entre 1 y 3999",
+  "instance": "/api/convert"
 }
 ```
 
@@ -45,18 +55,17 @@ Construida con **TypeScript**, **Vercel Serverless Functions** y **Domain-Driven
 ```bash
 curl -X POST https://roman-numeral-converter-seven.vercel.app/api/convert \
   -H "Content-Type: application/json" \
-  -d '{"input":"1994"}'
+  -d '{"value":"1994"}'
 ```
 
 ---
 
 ## Documentación
 
-- **[Referencia API](API-Reference)** - Endpoints, formatos de petición/respuesta
+- **[Referencia de API](API-Reference)** - Endpoints, formatos de petición/respuesta
 - **[Arquitectura](Architecture)** - Diseño del sistema y capas DDD
+- **[RFC 7807](RFC-7807)** - Estándar Problem Details para errores
 - **[Estrategia de Testing](Testing-Strategy)** - Enfoque TDD y cobertura
-- **[Pipeline CI/CD](CICD-Pipeline)** - Flujo de despliegue automatizado
-- **[Guía de Desarrollo](Development-Guide)** - Configuración local y contribución
 
 ---
 
@@ -65,30 +74,32 @@ curl -X POST https://roman-numeral-converter-seven.vercel.app/api/convert \
 | Característica | Implementación |
 |----------------|----------------|
 | **Arquitectura** | Domain-Driven Design (3 capas) |
-| **Testing** | Jest, 90%+ cobertura, TDD |
-| **Despliegue** | Vercel serverless functions |
+| **Testing** | Jest, 98%+ cobertura, TDD |
+| **Errores** | RFC 7807 Problem Details |
+| **Despliegue** | Vercel serverless |
 | **CI/CD** | GitHub Actions + auto-deploy |
-| **Seguridad de Tipos** | TypeScript modo estricto |
+| **Type Safety** | TypeScript modo estricto |
 | **Validación** | Zod schema validation |
-| **Control de Calidad** | Pre-commit hooks, ESLint, Prettier |
+| **Calidad** | Biome (linter + formatter) |
 
 ---
 
 ## Stack Tecnológico
 
-- **Runtime**: Node.js 18+
+- **Framework**: Next.js 14+
 - **Lenguaje**: TypeScript 5+
 - **Plataforma**: Vercel Serverless
-- **Testing**: Jest + Supertest
+- **Testing**: Jest
 - **Validación**: Zod
-- **Calidad**: ESLint + Prettier + Husky
+- **UI**: React + Tailwind CSS + shadcn/ui
+- **Calidad**: Biome
 
 ---
 
 ## Estado
 
 ![Build Status](https://github.com/Nubiru/roman-numeral-converter/workflows/CI/badge.svg)
-![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)
 ![Deployment](https://img.shields.io/badge/deployment-active-success)
 
-**Última Actualización**: 2025-10-24
+**Última Actualización**: 2025-11-18

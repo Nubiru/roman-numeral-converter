@@ -1,23 +1,21 @@
-### 📚 Documentación
+### Documentación
 
 - **[Inicio](Home)**
-- **[Referencia API](API)**
-- **[Arquitectura](Arquitectura)**
-- **[Testing](Testing)**
-- **[Pipeline CI/CD](CICD-Pipeline)**
-- **[Guía de Desarrollo](Development-Guide)**
+- **[Referencia de API](API-Reference)**
+- **[Arquitectura](Architecture)**
+- **[RFC 7807](RFC-7807)**
+- **[Estrategia de Testing](Testing-Strategy)**
 
 ---
 
-### 🚀 Enlaces Rápidos
+### Enlaces Rápidos
 
-- [API en Vivo](https://roman-numeral-converter-seven.vercel.app/api/convert)
-- [GitHub Repo](https://github.com/Nubiru/roman-numeral-converter)
-- [Vercel Dashboard](https://vercel.com/nubirus-projects/roman-numeral-converter)
+- [API en Producción](https://roman-numeral-converter-seven.vercel.app)
+- [Repositorio GitHub](https://github.com/Nubiru/roman-numeral-converter)
 
 ---
 
-### 📊 Status
+### Estado
 
 ![Build](https://github.com/Nubiru/roman-numeral-converter/workflows/CI/badge.svg)
-![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)
