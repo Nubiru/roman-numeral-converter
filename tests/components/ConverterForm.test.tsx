@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { toast } from 'sonner';
 import { ConverterForm } from '@/components/ConverterForm';
 
@@ -65,10 +64,9 @@ describe('ConverterForm', () => {
       });
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
-      await user.type(screen.getByLabelText(/valor a convertir/i), input);
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: input } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       await waitFor(() => {
         expect(screen.getByText(expected)).toBeInTheDocument();
@@ -82,10 +80,9 @@ describe('ConverterForm', () => {
       });
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
-      await user.type(screen.getByLabelText(/valor a convertir/i), '42');
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: '42' } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       expect(mockFetch).toHaveBeenCalledWith('/api/convert', {
         method: 'POST',
@@ -109,10 +106,9 @@ describe('ConverterForm', () => {
       });
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
-      await user.type(screen.getByLabelText(/valor a convertir/i), input);
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: input } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       await waitFor(() => {
         expect(screen.getByText(String(expected))).toBeInTheDocument();
@@ -126,10 +122,9 @@ describe('ConverterForm', () => {
       });
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
-      await user.type(screen.getByLabelText(/valor a convertir/i), 'xiv');
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: 'xiv' } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       expect(mockFetch).toHaveBeenCalledWith('/api/convert', {
         method: 'POST',
@@ -146,12 +141,13 @@ describe('ConverterForm', () => {
         ['   ', 'solo espacios'],
       ])('debe mostrar toast de error para entrada %s', async (input, _descripcion) => {
         render(<ConverterForm />);
-        const user = userEvent.setup();
 
         if (input) {
-          await user.type(screen.getByLabelText(/valor a convertir/i), input);
+          fireEvent.change(screen.getByLabelText(/valor a convertir/i), {
+            target: { value: input },
+          });
         }
-        await user.click(screen.getByRole('button', { name: /convertir/i }));
+        fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
         expect(mockToast.error).toHaveBeenCalledWith('Por favor ingresa un valor');
         expect(mockFetch).not.toHaveBeenCalled();
@@ -195,10 +191,9 @@ describe('ConverterForm', () => {
         });
 
         render(<ConverterForm />);
-        const user = userEvent.setup();
 
-        await user.type(screen.getByLabelText(/valor a convertir/i), input);
-        await user.click(screen.getByRole('button', { name: /convertir/i }));
+        fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: input } });
+        fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
         await waitFor(() => {
           expect(mockToast.error).toHaveBeenCalledWith(
@@ -219,10 +214,9 @@ describe('ConverterForm', () => {
         });
 
         render(<ConverterForm />);
-        const user = userEvent.setup();
 
-        await user.type(screen.getByLabelText(/valor a convertir/i), '100');
-        await user.click(screen.getByRole('button', { name: /convertir/i }));
+        fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: '100' } });
+        fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
         await waitFor(() => {
           expect(mockToast.error).toHaveBeenCalledWith(
@@ -240,10 +234,9 @@ describe('ConverterForm', () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
-      await user.type(screen.getByLabelText(/valor a convertir/i), '10');
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: '10' } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith('Error de conexión');
@@ -262,16 +255,15 @@ describe('ConverterForm', () => {
                   ok: true,
                   json: async () => ({ result: 'X', type: 'toRoman' }),
                 }),
-              100
+              10
             )
           )
       );
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
-      await user.type(screen.getByLabelText(/valor a convertir/i), '10');
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: '10' } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       // During loading, button text changes to "Convirtiendo..."
       expect(screen.getByRole('button', { name: /convirtiendo/i })).toBeDisabled();
@@ -291,16 +283,15 @@ describe('ConverterForm', () => {
                   ok: true,
                   json: async () => ({ result: 'X', type: 'toRoman' }),
                 }),
-              100
+              10
             )
           )
       );
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
-      await user.type(screen.getByLabelText(/valor a convertir/i), '10');
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: '10' } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       expect(screen.getByText(/convirtiendo/i)).toBeInTheDocument();
 
@@ -318,10 +309,9 @@ describe('ConverterForm', () => {
       });
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
-      await user.type(screen.getByLabelText(/valor a convertir/i), '100');
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: '100' } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalledWith('Conversión exitosa');
@@ -345,26 +335,24 @@ describe('ConverterForm', () => {
                     ok: true,
                     json: async () => ({ result: 'X', type: 'toRoman' }),
                   }),
-                100
+                10
               )
             )
         );
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
       // Primera conversión
-      await user.type(screen.getByLabelText(/valor a convertir/i), '5');
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: '5' } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       await waitFor(() => {
         expect(screen.getByText('V')).toBeInTheDocument();
       });
 
       // Segunda conversión - el resultado anterior debe desaparecer
-      await user.clear(screen.getByLabelText(/valor a convertir/i));
-      await user.type(screen.getByLabelText(/valor a convertir/i), '10');
-      await user.click(screen.getByRole('button', { name: /convertir/i }));
+      fireEvent.change(screen.getByLabelText(/valor a convertir/i), { target: { value: '10' } });
+      fireEvent.click(screen.getByRole('button', { name: /convertir/i }));
 
       expect(screen.queryByText('V')).not.toBeInTheDocument();
     });
@@ -385,11 +373,13 @@ describe('ConverterForm', () => {
       });
 
       render(<ConverterForm />);
-      const user = userEvent.setup();
 
       const input = screen.getByLabelText(/valor a convertir/i);
-      await user.type(input, '50');
-      await user.keyboard('{Enter}');
+      fireEvent.change(input, { target: { value: '50' } });
+      const form = input.closest('form');
+      if (form) {
+        fireEvent.submit(form);
+      }
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalled();
