@@ -1,4 +1,4 @@
-# Referencia de la API
+# API
 
 Referencia completa para la API Convertidor de Números Romanos.
 
@@ -6,16 +6,107 @@ Referencia completa para la API Convertidor de Números Romanos.
 
 ## URL Base
 
-**Producción**: `https://roman-numeral-converter-seven.vercel.app`
+**Producción Vercel**: `https://roman-numeral-converter-seven.vercel.app`
+**Producción Netlify**: `https://numeral-converter-gabriel.netlify.app`
 **Desarrollo Local**: `http://localhost:3000`
 
 ---
 
 ## Endpoints
 
+### GET /a2r
+
+Convierte un número arábigo a numeral romano.
+
+#### Petición
+
+**Query Parameters**:
+- `arabic` (string, requerido): Número entre 1 y 3999
+
+#### Respuesta
+
+**Éxito (200)**:
+```json
+{"roman":"XLII"}
+```
+
+**Error (400)** - RFC 7807:
+```json
+{
+  "type": "/problems/bad-request",
+  "title": "Solicitud Inválida",
+  "status": 400,
+  "detail": "Parámetro 'arabic' es requerido",
+  "instance": "/a2r"
+}
+```
+
+#### Ejemplos
+
+```bash
+# Conversión básica
+curl "https://roman-numeral-converter-seven.vercel.app/a2r?arabic=42"
+# Respuesta: {"roman":"XLII"}
+
+# Año
+curl "https://roman-numeral-converter-seven.vercel.app/a2r?arabic=1994"
+# Respuesta: {"roman":"MCMXCIV"}
+
+# Valor máximo
+curl "https://roman-numeral-converter-seven.vercel.app/a2r?arabic=3999"
+# Respuesta: {"roman":"MMMCMXCIX"}
+```
+
+---
+
+### GET /r2a
+
+Convierte un numeral romano a número arábigo.
+
+#### Petición
+
+**Query Parameters**:
+- `roman` (string, requerido): Numeral romano válido (I-MMMCMXCIX)
+
+#### Respuesta
+
+**Éxito (200)**:
+```json
+{"arabic":42}
+```
+
+**Error (400)** - RFC 7807:
+```json
+{
+  "type": "/problems/bad-request",
+  "title": "Solicitud Inválida",
+  "status": 400,
+  "detail": "Parámetro 'roman' es requerido",
+  "instance": "/r2a"
+}
+```
+
+#### Ejemplos
+
+```bash
+# Conversión básica
+curl "https://roman-numeral-converter-seven.vercel.app/r2a?roman=XLII"
+# Respuesta: {"arabic":42}
+
+# Año
+curl "https://roman-numeral-converter-seven.vercel.app/r2a?roman=MCMXCIV"
+# Respuesta: {"arabic":1994}
+
+# Minúsculas (aceptadas)
+curl "https://roman-numeral-converter-seven.vercel.app/r2a?roman=xlii"
+# Respuesta: {"arabic":42}
+```
+
+---
+
 ### POST /api/convert
 
-Convierte entre formatos numéricos y números romanos.
+Conversión con detección automática de dirección.
 
 #### Petición
 
@@ -27,128 +118,119 @@ Content-Type: application/json
 **Cuerpo**:
 ```json
 {
-  "input": "string (requerido)",
-  "direction": "toRoman | toNumeric | auto (opcional, default: auto)"
+  "value": "string (requerido)"
 }
 ```
 
 **Parámetros**:
-- `input` (string, requerido): Número (1-3999) o número romano (I-MMMCMXCIX)
-- `direction` (string, opcional): Dirección de conversión
-  - `auto`: Auto-detecta el tipo de entrada (default)
-  - `toRoman`: Convierte número a número romano
-  - `toNumeric`: Convierte número romano a número
+- `value` (string, requerido): Número (1-3999) o numeral romano (I-MMMCMXCIX)
 
 #### Respuesta
 
 **Éxito (200)**:
 ```json
 {
-  "input": "42",
-  "output": "XLII",
-  "direction": "toRoman"
+  "result": "XLII",
+  "type": "toRoman"
 }
 ```
 
-**Error de Validación (400)**:
+**Error de Validación (422)** - RFC 7807:
 ```json
 {
-  "error": "Validation Error",
-  "message": "Number must be between 1 and 3999"
+  "type": "/problems/validation-error",
+  "title": "Error de Validación",
+  "status": 422,
+  "detail": "El valor 'ABC123' no es ni un número válido ni un numeral romano",
+  "instance": "/api/convert"
 }
 ```
 
-**Método No Permitido (405)**:
+**Solicitud Malformada (400)** - RFC 7807:
 ```json
 {
-  "error": "Method Not Allowed"
+  "type": "/problems/malformed-request",
+  "title": "Solicitud Malformada",
+  "status": 400,
+  "detail": "El campo 'value' debe ser una cadena de texto",
+  "instance": "/api/convert"
 }
 ```
 
-**Error del Servidor (500)**:
-```json
-{
-  "error": "Internal Server Error",
-  "message": "An unexpected error occurred"
-}
-```
+#### Ejemplos
 
----
-
-## Ejemplos
-
-### Auto-Detección (Default)
-
-**Entrada Numérica**:
 ```bash
+# Arábigo a Romano (auto-detectado)
 curl -X POST https://roman-numeral-converter-seven.vercel.app/api/convert \
   -H "Content-Type: application/json" \
-  -d '{"input":"1994"}'
+  -d '{"value":"1994"}'
+# Respuesta: {"result":"MCMXCIV","type":"toRoman"}
 
-# Respuesta: {"input":"1994","output":"MCMXCIV","direction":"toRoman"}
-```
-
-**Entrada Romana**:
-```bash
+# Romano a Arábigo (auto-detectado)
 curl -X POST https://roman-numeral-converter-seven.vercel.app/api/convert \
   -H "Content-Type: application/json" \
-  -d '{"input":"MCMXCIV"}'
-
-# Respuesta: {"input":"MCMXCIV","output":"1994","direction":"toNumeric"}
-```
-
-### Dirección Explícita
-
-**Forzar a Romano**:
-```bash
-curl -X POST https://roman-numeral-converter-seven.vercel.app/api/convert \
-  -H "Content-Type: application/json" \
-  -d '{"input":"42","direction":"toRoman"}'
-
-# Respuesta: {"input":"42","output":"XLII","direction":"toRoman"}
-```
-
-**Forzar a Numérico**:
-```bash
-curl -X POST https://roman-numeral-converter-seven.vercel.app/api/convert \
-  -H "Content-Type: application/json" \
-  -d '{"input":"XLII","direction":"toNumeric"}'
-
-# Respuesta: {"input":"XLII","output":"42","direction":"toNumeric"}
+  -d '{"value":"MCMXCIV"}'
+# Respuesta: {"result":1994,"type":"toArabic"}
 ```
 
 ---
 
 ## Casos Límite
 
-### Valor Mínimo (1/I)
+### Valores Válidos
+
+| Entrada | Respuesta GET /a2r | Respuesta GET /r2a |
+|---------|--------------------|--------------------|
+| `1` | `{"roman":"I"}` | - |
+| `I` | - | `{"arabic":1}` |
+| `3999` | `{"roman":"MMMCMXCIX"}` | - |
+| `MMMCMXCIX` | - | `{"arabic":3999}` |
+
+### Errores Comunes
+
+| Entrada | Endpoint | Error |
+|---------|----------|-------|
+| `0` | /a2r | Fuera de rango (1-3999) |
+| `4000` | /a2r | Fuera de rango (1-3999) |
+| `IIII` | /r2a | Numeral romano inválido |
+| `ABC` | /r2a | Caracteres no válidos |
+| (vacío) | ambos | Parámetro requerido |
+
+---
+
+## Manejo de Errores (RFC 7807)
+
+Todos los errores siguen el estándar RFC 7807 Problem Details:
+
 ```json
-{"input":"1"} → {"output":"I"}
-{"input":"I"} → {"output":"1"}
+{
+  "type": "/problems/bad-request",
+  "title": "Solicitud Inválida",
+  "status": 400,
+  "detail": "Descripción específica del error",
+  "instance": "/endpoint"
+}
 ```
 
-### Valor Máximo (3999/MMMCMXCIX)
-```json
-{"input":"3999"} → {"output":"MMMCMXCIX"}
-{"input":"MMMCMXCIX"} → {"output":"3999"}
-```
+### Tipos de Error
 
-### Entradas Inválidas
-```json
-{"input":"0"} → Error 400 (fuera de rango)
-{"input":"4000"} → Error 400 (fuera de rango)
-{"input":"IIII"} → Error 400 (romano inválido)
-{"input":"ABC"} → Error 400 (entrada inválida)
-{"input":""} → Error 400 (entrada vacía)
-```
+| Tipo | Status | Descripción |
+|------|--------|-------------|
+| `/problems/bad-request` | 400 | Parámetro faltante o inválido |
+| `/problems/malformed-request` | 400 | Body JSON malformado |
+| `/problems/validation-error` | 422 | Valor no reconocido |
+| `/problems/range-error` | 422 | Número fuera de rango |
+| `/problems/invalid-numeral` | 422 | Patrón romano inválido |
+| `/problems/server-error` | 500 | Error interno |
 
 ---
 
 ## Soporte CORS
 
-La API soporta peticiones cross-origin:
+La API soporta peticiones cross-origin en todos los endpoints:
+
 - **Access-Control-Allow-Origin**: `*`
-- **Access-Control-Allow-Methods**: `POST, OPTIONS`
+- **Access-Control-Allow-Methods**: `GET, POST, OPTIONS`
 - **Access-Control-Allow-Headers**: `Content-Type`
 
 ---
@@ -158,10 +240,13 @@ La API soporta peticiones cross-origin:
 **Vercel Free Tier**:
 - 100GB ancho de banda/mes
 - 100 horas ejecución serverless/mes
-- Sin límite por petición
+
+**Netlify Free Tier**:
+- 100GB ancho de banda/mes
+- 125K invocaciones de funciones/mes
 
 **Recomendado**: Implementar throttling del lado del cliente para uso en producción.
 
 ---
 
-**Última Actualización**: 2025-10-24
+**Última Actualización**: 2025-11-19

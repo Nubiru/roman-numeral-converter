@@ -9,12 +9,20 @@ Descripción general del diseño del sistema y arquitectura técnica.
 ```
 ┌─────────────────────────────────────────┐
 │      Capa de Infraestructura            │
-│  (Vercel Serverless, Validación Zod)    │
+│  (Vercel/Netlify Serverless, Zod)       │
 │                                         │
-│  api/convert.ts                         │
-│  ├─ Manejo HTTP                         │
-│  ├─ Validación de peticiones (Zod)      │
-│  └─ Formateo de respuestas              │
+│  app/api/convert/route.ts (POST)        │
+│  ├─ Detección automática                │
+│  ├─ Validación con Zod                  │
+│  └─ Respuestas RFC 7807                 │
+│                                         │
+│  app/a2r/route.ts (GET)                 │
+│  ├─ Arábigo → Romano                    │
+│  └─ Query param: ?arabic=42             │
+│                                         │
+│  app/r2a/route.ts (GET)                 │
+│  ├─ Romano → Arábigo                    │
+│  └─ Query param: ?roman=XLII            │
 └─────────────────┬───────────────────────┘
                   │
                   ▼
@@ -49,15 +57,18 @@ Descripción general del diseño del sistema y arquitectura técnica.
 ## Responsabilidades de las Capas
 
 ### Capa de Infraestructura
-**Ubicación**: `api/`, `src/infrastructure/`
+**Ubicación**: `app/`, `src/infrastructure/`
 
-**Propósito**: Interfaces externas (HTTP, base de datos, APIs de terceros)
+**Propósito**: Interfaces externas (HTTP, APIs de terceros)
 
 **Componentes**:
-- `api/convert.ts`: Handler de función serverless de Vercel
+- `app/api/convert/route.ts`: POST con detección automática
+- `app/a2r/route.ts`: GET arábigo → romano
+- `app/r2a/route.ts`: GET romano → arábigo
 - `src/infrastructure/schemas/`: Esquemas de validación Zod
+- `src/infrastructure/http/`: Manejo de errores RFC 7807
 
-**Dependencias**: Capa de aplicación, Vercel SDK, Zod
+**Dependencias**: Capa de aplicación, Next.js App Router, Zod
 
 **Reglas**:
 - ✅ Puede depender de la capa de Aplicación
@@ -110,9 +121,29 @@ Descripción general del diseño del sistema y arquitectura técnica.
 
 ## Flujo de Datos
 
+### Endpoints GET (/a2r, /r2a)
 ```
-1. Petición HTTP
-   └─> api/convert.ts (Infraestructura)
+1. Petición GET con query param
+   └─> app/a2r/route.ts o app/r2a/route.ts
+       ├─> Extraer parámetro de URL
+       └─> Validar formato básico
+
+2. Lógica de Dominio (directa)
+   └─> converter.ts (Dominio)
+       ├─> Validar reglas de negocio
+       ├─> Ejecutar conversión
+       └─> Retornar resultado
+
+3. Respuesta HTTP
+   └─> route.ts (Infraestructura)
+       ├─> Formatear JSON simple
+       └─> Errores en RFC 7807
+```
+
+### Endpoint POST (/api/convert)
+```
+1. Petición POST con body JSON
+   └─> app/api/convert/route.ts
        ├─> Validar con esquema Zod
        └─> Parsear cuerpo de petición
 
@@ -129,9 +160,8 @@ Descripción general del diseño del sistema y arquitectura técnica.
        └─> Retornar resultado
 
 4. Respuesta HTTP
-   └─> api/convert.ts (Infraestructura)
-       ├─> Formatear respuesta
-       ├─> Establecer código de estado
+   └─> route.ts (Infraestructura)
+       ├─> Formatear respuesta RFC 7807
        └─> Enviar JSON
 ```
 
@@ -141,11 +171,11 @@ Descripción general del diseño del sistema y arquitectura técnica.
 
 | Capa | Tecnologías |
 |------|-------------|
-| **Infraestructura** | Vercel Serverless, Zod, HTTP |
+| **Infraestructura** | Next.js App Router, Vercel/Netlify, Zod |
 | **Aplicación** | TypeScript (puro) |
 | **Dominio** | TypeScript (puro, cero deps) |
-| **Testing** | Jest, Supertest |
-| **Calidad** | ESLint, Prettier, Husky |
+| **Testing** | Jest (256 tests, 98.8% cobertura) |
+| **Calidad** | Biome, Husky, lint-staged |
 
 ---
 
@@ -182,22 +212,32 @@ Repositorio GitHub
     ├─ Push a main
     │
     ▼
-GitHub Actions (CI)
+Pre-commit Hooks (Local)
     │
-    ├─ Ejecutar tests
-    ├─ Ejecutar linter
-    ├─ Compilar TypeScript
-    │
-    ▼
-Plataforma Vercel
-    │
-    ├─ Auto-deploy
-    ├─ Funciones serverless
+    ├─ Biome (lint + format)
+    ├─ TypeScript (type-check)
+    ├─ Jest (cobertura)
     │
     ▼
-Producción (API en Vivo)
+┌─────────────────┬─────────────────┐
+│                 │                 │
+▼                 ▼
+Vercel            Netlify
+│                 │
+├─ Auto-deploy    ├─ Auto-deploy
+├─ Edge Network   ├─ Edge Network
+│                 │
+▼                 ▼
+Producción        Producción
+(vercel.app)      (netlify.app)
+└─────────────────┴─────────────────┘
 ```
+
+### URLs de Producción
+
+- **Vercel**: https://roman-numeral-converter-seven.vercel.app
+- **Netlify**: https://numeral-converter-gabriel.netlify.app
 
 ---
 
-**Última Actualización**: 2025-10-24
+**Última Actualización**: 2025-11-19
